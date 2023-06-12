@@ -30,11 +30,7 @@ const isLoggedIn = () => {
 const isTokenExpired = (token) => {
   try {
     const decoded = jwtDecode(token);
-    if (decoded.exp < Date.now() / 1000) {
-      return true;
-    } else {
-      return false;
-    }
+    return decoded.exp < Date.now() / 1000 ? true : false;
   } catch (err) {
     return false;
   }
