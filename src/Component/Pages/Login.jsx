@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { setToken } from "../../Auth/auth";
 import TokenContext from "../../Context/TokenContext";
 import * as api from "../../Api/index";
-import { jwtDecode } from "jwt-decode";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import Loading from "./Loading";
 
 const ClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 const Login = () => {
@@ -12,6 +12,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const Navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -43,6 +44,7 @@ const Login = () => {
   };
 
   const googleLogin = async (codeResponse) => {
+    setLoading(true);
     const data = {
       tokenId: codeResponse.credential,
     };
@@ -57,7 +59,7 @@ const Login = () => {
     }
     setToken(access_token);
     await setAccessToken(access_token);
-
+    setLoading(false);
     MySwal.fire({
       title: "Login Successful",
       icon: "success",
@@ -71,82 +73,92 @@ const Login = () => {
   };
 
   return (
-    <div className="container my-5">
-      <h1 className="text-center">Login to My Notes</h1>
-      <div className="row my-5">
-        <div className="col-md-7 col-10 mx-auto">
-          <form>
-            <div className="mb-3 row">
-              <label htmlFor="inputEmail" className="col-sm-2 col-form-label">
-                Email
-              </label>
-              <div className="col-sm-10">
-                <input
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                  }}
-                  type="email"
-                  className="form-control"
-                  id="exampleFormControlInput1"
-                  placeholder="name@example.com"
-                />
-              </div>
-            </div>
-            <div className="mb-3 row">
-              <label
-                htmlFor="inputPassword"
-                className="col-sm-2 col-form-label"
-              >
-                Password
-              </label>
-              <div className="col-sm-10">
-                <input
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                  }}
-                  type="password"
-                  className="form-control"
-                  id="inputPassword"
-                />
-              </div>
-            </div>
-            {error && (
-              <div className="mb-3 row">
-                <div className="col-sm-10 offset-sm-2">
-                  <p className="text-danger">{error}</p>
-                </div>
-              </div>
-            )}
-            <div className="mb-3 row text-center">
-              <div className="col-md-12">
-                <button onClick={handleSubmit} className="btn btn-primary">
-                  Submit
-                </button>
-              </div>
-              <div className="col-md-12">
-                <div className="row text-center">
-                  <GoogleOAuthProvider clientId={ClientId}>
-                    <GoogleLogin
-                      width={300}
-                      shape="rectangular"
-                      text="Login with Google"
-                      logo_alignment="center"
-                      theme="dark"
-                      type="standard"
-                      size="large"
-                      onSuccess={googleLogin}
-                      onError={() => {
-                        console.log("Login Failed");
+    <>
+      {loading ? (
+        <Loading />
+      ) : (
+        <div className="container my-5">
+          <h1 className="text-center">Login to My Notes</h1>
+          <div className="row my-5">
+            <div className="col-md-7 col-10 mx-auto">
+              <form>
+                <div className="mb-3 row">
+                  <label
+                    htmlFor="inputEmail"
+                    className="col-sm-2 col-form-label"
+                  >
+                    Email
+                  </label>
+                  <div className="col-sm-10">
+                    <input
+                      onChange={(e) => {
+                        setEmail(e.target.value);
                       }}
+                      type="email"
+                      className="form-control"
+                      id="exampleFormControlInput1"
+                      placeholder="name@example.com"
                     />
-                  </GoogleOAuthProvider>
+                  </div>
                 </div>
-              </div>
+                <div className="mb-3 row">
+                  <label
+                    htmlFor="inputPassword"
+                    className="col-sm-2 col-form-label"
+                  >
+                    Password
+                  </label>
+                  <div className="col-sm-10">
+                    <input
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                      }}
+                      type="password"
+                      className="form-control"
+                      id="inputPassword"
+                    />
+                  </div>
+                </div>
+                {error && (
+                  <div className="mb-3 row">
+                    <div className="col-sm-10 offset-sm-2">
+                      <p className="text-danger">{error}</p>
+                    </div>
+                  </div>
+                )}
+                <div className="mb-3 row text-center">
+                  <div className="col-md-12">
+                    <button onClick={handleSubmit} className="btn btn-primary">
+                      Submit
+                    </button>
+                  </div>
+                  <div className="col-md-12">
+                    <div className="row text-center">
+                      <GoogleOAuthProvider clientId={ClientId}>
+                        <GoogleLogin
+                          width={300}
+                          useOneTap
+                          shape="rectangular"
+                          text="Login with Google"
+                          logo_alignment="center"
+                          theme="dark"
+                          type="standard"
+                          size="large"
+                          onSuccess={googleLogin}
+                          onError={() => {
+                            console.log("Login Failed");
+                          }}
+                        />
+                      </GoogleOAuthProvider>
+                    </div>
+                  </div>
+                </div>
+              </form>
             </div>
-          </form>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 
