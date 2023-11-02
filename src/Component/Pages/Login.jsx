@@ -3,9 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { setToken } from "../../Auth/auth";
 import TokenContext from "../../Context/TokenContext";
 import * as api from "../../Api/index";
+import { jwtDecode } from "jwt-decode";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 
+const ClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 const Login = () => {
-  const { setAccessToken } = useContext(TokenContext);
+  const { setAccessToken, MySwal } = useContext(TokenContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -37,6 +40,34 @@ const Login = () => {
         Navigate("/");
       }
     }
+  };
+
+  const googleLogin = async (codeResponse) => {
+    const data = {
+      tokenId: codeResponse.credential,
+    };
+    const response = await api.googleLogin(data);
+    const json = await response.data;
+    const { access_token, message } = json.response;
+    if (json.errors) {
+      setError(json.errors[0].msg);
+      setTimeout(() => {
+        setError("");
+      }, 3000);
+    }
+    setToken(access_token);
+    await setAccessToken(access_token);
+
+    MySwal.fire({
+      title: "Login Successful",
+      icon: "success",
+      showCancelButton: false,
+      confirmButtonText: "OK",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Navigate("/");
+      }
+    });
   };
 
   return (
@@ -86,11 +117,30 @@ const Login = () => {
                 </div>
               </div>
             )}
-            <div className="mb-3 row">
-              <div className="col-sm-10 offset-sm-2">
+            <div className="mb-3 row text-center">
+              <div className="col-md-12">
                 <button onClick={handleSubmit} className="btn btn-primary">
                   Submit
                 </button>
+              </div>
+              <div className="col-md-12">
+                <div className="row text-center">
+                  <GoogleOAuthProvider clientId={ClientId}>
+                    <GoogleLogin
+                      width={300}
+                      shape="rectangular"
+                      text="Login with Google"
+                      logo_alignment="center"
+                      theme="dark"
+                      type="standard"
+                      size="large"
+                      onSuccess={googleLogin}
+                      onError={() => {
+                        console.log("Login Failed");
+                      }}
+                    />
+                  </GoogleOAuthProvider>
+                </div>
               </div>
             </div>
           </form>

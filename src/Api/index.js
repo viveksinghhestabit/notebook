@@ -19,6 +19,7 @@ api.interceptors.request.use(
 );
 
 export const login = (data) => api.post("/auth/login", data);
+export const googleLogin = (data) => api.post("/auth/googlelogin", data);
 export const register = (data) => api.post("/auth/register", data);
 
 export const getGraphData = (range) =>

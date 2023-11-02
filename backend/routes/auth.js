@@ -6,10 +6,11 @@ const Router = express.Router();
 const bodyParsers = require("body-parser");
 const jsonParser = bodyParsers.json();
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const { body, validationResult } = require("express-validator");
-const { res_success, res_error } = require("../middleware/response");
+const { res_success, res_error, jwtSign } = require("../middleware/response");
 
 Router.post(
   "/register",
@@ -66,19 +67,7 @@ Router.post(
       if (!isMatch) {
         res_error(res, "Invalid credentials");
       }
-      const token = jwt.sign(
-        {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          isAdmin: user.isAdmin,
-        },
-        process.env.JWT_SECRET,
-        {
-          expiresIn: 360000,
-        }
-      );
+      const token = jwtSign(user);
       const response = {
         status_code: 200,
         status_message: "OK",
@@ -134,6 +123,59 @@ Router.get("/productbyCatId/:id", async (req, res) => {
       item.imagePath = process.env.BASE_URL + "/" + item.imagePath;
     });
     res_success(res, products);
+  } catch (err) {
+    console.error(err.message);
+    res_error(res, "Server error");
+  }
+});
+
+Router.post("/googlelogin", jsonParser, async (req, res) => {
+  const { tokenId } = req.body;
+  try {
+    const response = await client.verifyIdToken({
+      idToken: tokenId,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const { email_verified, name, email } = response.payload;
+    if (email_verified) {
+      const user = await User.findOne({ email });
+      if (user) {
+        const token = jwtSign(user);
+        const response = {
+          status_code: 200,
+          status_message: "OK",
+          access_token: token,
+          message: "User logged in",
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+          },
+        };
+        res.json({ response });
+      } else {
+        let password = email + process.env.JWT_SECRET;
+        let passwordHash = await bcrypt.hash(password, 10);
+        let nuser = User.create({
+          name,
+          email,
+          password: passwordHash,
+        });
+        const token = jwtSign(nuser);
+        const response = {
+          status_code: 200,
+          status_message: "OK",
+          access_token: token,
+          message: "User logged in",
+          user: {
+            id: nuser._id,
+            name: nuser.name,
+            email: nuser.email,
+          },
+        };
+        res.json({ response });
+      }
+    }
   } catch (err) {
     console.error(err.message);
     res_error(res, "Server error");
