@@ -2,11 +2,13 @@ import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import TokenContext from "../../Context/TokenContext";
 import * as api from "../../Api/index";
+import { useDispatch, useSelector } from "react-redux";
+import { getNotes as getn } from "../../store/slices/notes";
 
 const Notes = () => {
-  const base_url = process.env.REACT_APP_BASE_URL;
+  const dispatch = useDispatch();
+  const notes = useSelector((state) => state.notes.notes);
   const { access_token, user, MySwal } = useContext(TokenContext);
-  const [notes, setNotes] = useState([]);
   const Navigator = useNavigate();
 
   const getNotes = async () => {
@@ -23,7 +25,7 @@ const Notes = () => {
         });
         return;
       }
-      setNotes(data.data);
+      dispatch(getn(data.data));
     }
   };
 
@@ -58,7 +60,6 @@ const Notes = () => {
       }
     });
   };
-
   useEffect(() => {
     getNotes();
   }, []);

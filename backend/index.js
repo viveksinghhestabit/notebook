@@ -3,17 +3,12 @@ const cors = require("cors");
 const express = require("express");
 require("dotenv").config();
 const bodyParser = require("body-parser");
-//get images from uploads folder
 const path = require("path");
 
 const app = express();
 const port = 5000;
 
-app.use(
-  cors({
-    origin: "*",
-  })
-);
+app.use(cors({ origin: "*" }));
 app.use(express.static(path.resolve("./public")));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
