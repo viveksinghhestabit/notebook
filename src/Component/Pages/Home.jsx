@@ -7,6 +7,7 @@ import slider3 from "../../images/slider3.jpg";
 
 const Home = () => {
   const { access_token, user } = useContext(TokenContext);
+  console.log(user, 'user');
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

@@ -35,6 +35,7 @@ const Login = () => {
       setToken(access_token);
       await setAccessToken(access_token);
       const user = JSON.parse(atob(access_token.split(".")[1]));
+      
       if (user.role === "admin") {
         Navigate("/admin/dashboard");
       } else {

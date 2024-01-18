@@ -1,97 +1,51 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import TokenContext from "../../../Context/TokenContext";
+import { useDispatch, useSelector } from "react-redux";
+import { getProductCategoriesAsync } from "../../../store/slices/productCategory";
+import { updateProductAsync } from "../../../store/slices/products";
 import * as api from "../../../Api/index";
 
 const ProductEdit = () => {
-  const [category, setCategory] = useState([]);
+  const dispatch = useDispatch();
+  const loading = useSelector((state) => state.products.loading);
+  const error = useSelector((state) => state.products.error);
   const [product, setProduct] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const productCategories = useSelector(
+    (state) => state.productCategory.productCategories
+  );
   const navigate = useNavigate();
   const { MySwal } = useContext(TokenContext);
   const { id } = useParams();
 
-  const fetchCategory = async () => {
-    try {
-      setLoading(true);
-      const response = await api.getCategories();
-      const data = await response.data;
-      if (data.status !== 200) {
-        setError(data.message);
-        setLoading(false);
-        return;
-      }
-      setCategory(data.data);
-      setLoading(false);
-    } catch (error) {
-      setError(error);
-      setLoading(false);
-    }
-  };
-
   const fetchProduct = async () => {
-    try {
-      setLoading(true);
-      const response = await api.getProduct(id);
-      const data = await response.data;
-      if (data.status !== 200) {
-        setError(data.message);
-        setLoading(false);
-        return;
-      }
-      setProduct(data.data);
-      setLoading(false);
-    } catch (error) {
-      setError(error);
-      setLoading(false);
-    }
+    const response = await api.getProduct(id);
+    const result = response.data;
+    setProduct(result.data);
   };
-
   useEffect(() => {
-    fetchCategory();
+    dispatch(getProductCategoriesAsync());
     fetchProduct();
   }, []);
 
-  const updateProduct = async () => {
-    try {
-      setLoading(true);
-      let form = new FormData();
-      form.append("name", product.name);
-      form.append("description", product.description);
-      form.append("image", product.image);
-      form.append("price", product.price);
-      form.append("category", product.category);
-      form.append("status", product.status);
-
-      const response = await api.updateProduct(id, form);
-      const data = await response.data;
-      if (data.status !== 200) {
-        setError(data.message);
-        setLoading(false);
-        return;
-      }
-      MySwal.fire({
-        title: "Success",
-        text: "Product Updated Successfully",
-        icon: "success",
-        confirmButtonText: "Ok",
-        showconfirmButton: true,
-        timer: 5000,
-      }).then(() => {
-        navigate("/admin/product-list");
-      });
-    } catch (error) {
-      setError(error);
-      setLoading(false);
-    }
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    updateProduct();
+    let form = new FormData();
+    for (let key in product) {
+      form.append(key, product[key]);
+    }
+    dispatch(updateProductAsync(id, form));
+    MySwal.fire({
+      title: "Updated!",
+      text: "Your Product has been updated.",
+      icon: "success",
+      confirmButtonText: "Ok",
+      showconfirmButton: true,
+      timer: 5000,
+    });
+    navigate("/admin/product-list");
   };
-
+  console.log(product, "product");
   return (
     <div className="container my-2">
       <div className="row">
@@ -198,8 +152,8 @@ const ProductEdit = () => {
                   }
                 >
                   <option value="">Select Category</option>
-                  {category &&
-                    category.map((item) => (
+                  {productCategories &&
+                    productCategories.map((item) => (
                       <option key={item._id} value={item._id}>
                         {item.name}
                       </option>

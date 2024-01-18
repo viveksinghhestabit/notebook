@@ -102,7 +102,21 @@ Router.get("/allproducts", async (req, res) => {
 
 Router.get("/allcategories", async (req, res) => {
   try {
-    const categories = await ProductCategory.find({});
+    //get products of these categories using lookup with product table
+
+    const categories = await ProductCategory.aggregate([
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "category",
+          as: "products",
+        },
+      },
+      {
+        $match: {},
+      },
+    ]);
     categories.map((item) => {
       item.imagePath = process.env.BASE_URL + "/" + item.imagePath;
     });

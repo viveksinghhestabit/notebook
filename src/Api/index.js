@@ -49,8 +49,15 @@ export const deleteCategory = (id) => api.delete(`/productCategory/delete/${id}`
 export const getProducts = () => api.get("/products/getall");
 export const addProduct = (data) => api.post("/products/create", data);
 export const getProduct = (id) => api.get(`/products/get/${id}`);
+export const getProductByCatId = (id) => api.get(`/auth/productbyCatId/${id}`);
+
 export const updateProduct = (id, data) =>
     api.put(`/products/update/${id}`, data);
 export const deleteProduct = (id) => api.delete(`/products/delete/${id}`);
+
+export const addContact = (data) => api.post("/contact/save-contact", data);
+export const getContacts = () => api.get("/notes/getContacts");
+export const deleteContact = (id) => api.delete(`/notes/deleteContact/${id}`);
+
 
 

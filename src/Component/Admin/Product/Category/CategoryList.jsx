@@ -1,54 +1,47 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import TokenContext from "../../../../Context/TokenContext";
-import * as api from "../../../../Api/index";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getProductCategoriesAsync,
+  deleteProductCategoryAsync,
+} from "../../../../store/slices/productCategory";
 
 const CategoryList = () => {
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const dispatch = useDispatch();
+  const productCategories = useSelector(
+    (state) => state.productCategory.productCategories
+  );
+  const { MySwal } = useContext(TokenContext);
+  const loading = useSelector((state) => state.productCategory.loading);
+  const error = useSelector((state) => state.productCategory.error);
   const navigate = useNavigate();
-  const { access_token } = useContext(TokenContext);
-
-  const getchAllCategory = async () => {
-    try {
-      setLoading(true);
-      const response = await api.getCategories();
-      const data = await response.data;
-      if (data.status !== 200) {
-        setError(data.message);
-        setLoading(false);
-        return;
-      }
-      setCategories(data.data);
-      setLoading(false);
-    } catch (error) {
-      setError(error);
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    getchAllCategory();
-  }, []);
+    dispatch(getProductCategoriesAsync());
+  }, [deleteProductCategoryAsync]);
 
   const deleteCategory = async (id) => {
-    try {
-      setLoading(true);
-      const response = await api.deleteCategory(id);
-      const data = await response.data;
-      if (data.status !== 200) {
-        setError(data.message);
-        setLoading(false);
-        return;
+    MySwal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      confirmButtonText: "Ok",
+      showconfirmButton: true,
+      showCancelButton: true,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        dispatch(deleteProductCategoryAsync(id));
+        MySwal.fire({
+          title: "Deleted!",
+          text: "Your Category has been deleted.",
+          icon: "success",
+          confirmButtonText: "Ok",
+          showconfirmButton: true,
+          timer: 5000,
+        });
       }
-      getchAllCategory();
-      setLoading(false);
-    } catch (error) {
-      setError(error);
-      setLoading(false);
-    }
+    });
   };
 
   return (
@@ -85,7 +78,7 @@ const CategoryList = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {categories.map((category, index) => (
+                    {productCategories.map((category, index) => (
                       <tr key={index}>
                         <td>{index + 1}</td>
                         <td>

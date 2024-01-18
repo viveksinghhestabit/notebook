@@ -1,71 +1,35 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as api from "../../../Api/index";
+import { addProductAsync, setLoading } from "../../../store/slices/products";
+import { getProductCategoriesAsync } from "../../../store/slices/productCategory";
+import { useDispatch, useSelector } from "react-redux";
 
 const ProductAdd = () => {
-  const [category, setCategory] = useState([]);
-  const [product, setProduct] = useState({
-    name: "",
-    description: "",
-    price: "",
-    category: "",
-    image: "",
-    status: "",
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const loading = useSelector((state) => state.products.loading);
+  const error = useSelector((state) => state.products.error);
+  const productCategories = useSelector(
+    (state) => state.productCategory.productCategories
+  );
+  const [product, setProduct] = useState({});
+
   const navigate = useNavigate();
 
-  const fetchCategory = async () => {
-    try {
-      setLoading(true);
-      const response = await api.getCategories();
-      const data = await response.data;
-      if (data.status !== 200) {
-        setError(data.message);
-        setLoading(false);
-        return;
-      }
-      setCategory(data.data);
-      setLoading(false);
-    } catch (error) {
-      setError(error);
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchCategory();
+    dispatch(getProductCategoriesAsync());
   }, []);
-
-  const addProduc = async () => {
-    try {
-      setLoading(true);
-      let form = new FormData();
-      form.append("name", product.name);
-      form.append("description", product.description);
-      form.append("image", product.image);
-      form.append("price", product.price);
-      form.append("category", product.category);
-      form.append("status", product.status);
-
-      const response = await api.addProduct(form);
-      const data = await response.data;
-      if (data.status !== 200) {
-        setError(data.message);
-        setLoading(false);
-        return;
-      }
-      navigate("/admin/product-list");
-    } catch (error) {
-      setError(error);
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    addProduc();
+    dispatch(setLoading(true));
+    let form = new FormData();
+    for (let key in product) {
+      form.append(key, product[key]);
+    }
+    dispatch(addProductAsync(form));
+    dispatch(setLoading(false));
+    navigate("/admin/product-list");
   };
 
   return (
@@ -163,8 +127,8 @@ const ProductAdd = () => {
                   }
                 >
                   <option value="">Select Category</option>
-                  {category &&
-                    category.map((item) => (
+                  {productCategories &&
+                    productCategories.map((item) => (
                       <option key={item._id} value={item._id}>
                         {item.name}
                       </option>

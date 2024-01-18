@@ -1,11 +1,13 @@
 import React, { useContext, useState } from "react";
 import TokenContext from "../../Context/TokenContext";
+import { useDispatch, useSelector } from "react-redux";
+import { addContactAsync, setError } from "../../store/slices/contacts";
 
 const Contact = () => {
+  const dispatch = useDispatch();
+  const error = useSelector((state) => state.contacts.error);
   const [contact, setContact] = useState({});
-  const [error, setError] = useState({});
   const { MySwal } = useContext(TokenContext);
-  const base_url = process.env.REACT_APP_BASE_URL;
 
   const handleChange = (e) => {
     setContact({ ...contact, [e.target.name]: e.target.value });
@@ -15,26 +17,14 @@ const Contact = () => {
     e.preventDefault();
     const isValid = validate();
     if (isValid) {
-      fetch(`${base_url}contact/save-contact`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(contact),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.status === 200) {
-            setContact({});
-            setError({});
-            MySwal.fire({
-              icon: "success",
-              title: "Thank you!",
-              text: "Your message has been sent successfully.",
-              showConfirmButton: true,
-            });
-          }
-        });
+      dispatch(addContactAsync(contact));
+      setContact({ name: "", email: "", phone: "", message: "" });
+      MySwal.fire({
+        title: "Success",
+        text: "Your message has been sent successfully",
+        icon: "success",
+        confirmButtonText: "Ok",
+      });
     }
   };
 
@@ -91,7 +81,7 @@ const Contact = () => {
                 name="name"
                 placeholder="Enter your name"
               />
-              <div className="text-danger">{error.nameError}</div>
+              <div className="text-danger">{error?.nameError}</div>
             </div>
             <div className="mb-3">
               <label htmlFor="email" className="form-label">
@@ -121,7 +111,7 @@ const Contact = () => {
                 name="phone"
                 placeholder="Enter your phone"
               />
-              <div className="text-danger">{error.phoneError}</div>
+              <div className="text-danger">{error?.phoneError}</div>
             </div>
             <div className="mb-3">
               <label htmlFor="message" className="form-label">
@@ -136,7 +126,7 @@ const Contact = () => {
                 rows="3"
                 placeholder="Enter your message"
               ></textarea>
-              <div className="text-danger">{error.messageError}</div>
+              <div className="text-danger">{error?.messageError}</div>
             </div>
             <button
               type="submit"

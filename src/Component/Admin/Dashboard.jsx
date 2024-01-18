@@ -54,6 +54,10 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-md-6">
           <Chart
             series={graphData.series}
             categories={graphData.categories}

@@ -28,6 +28,8 @@ const jwtSign = (user) => {
       id: user.id,
       name: user.name,
       email: user.email,
+      role: user.role,
+      isAdmin: user.isAdmin,
     },
     process.env.JWT_SECRET,
     { expiresIn: "1h" }

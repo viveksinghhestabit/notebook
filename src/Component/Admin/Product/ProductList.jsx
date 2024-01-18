@@ -1,79 +1,45 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useEffect, useContext } from "react";
 import TokenContext from "../../../Context/TokenContext";
 import { useNavigate } from "react-router-dom";
-import * as api from "../../../Api/index";
+import {
+  getProductsAsync,
+  deleteProductAsync,
+} from "../../../store/slices/products";
+import { useDispatch, useSelector } from "react-redux";
 
 const ProductList = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const { access_token, MySwal } = useContext(TokenContext);
+  const dispatch = useDispatch();
+  const products = useSelector((state) => state.products.products);
+  const loading = useSelector((state) => state.products.loading);
+  const error = useSelector((state) => state.products.error);
+  const { MySwal } = useContext(TokenContext);
   const navigate = useNavigate();
-  const baseUrl = process.env.REACT_APP_BASE_URL;
-
-  const fetchProducts = async () => {
-    try {
-      const response = await api.getProducts();
-      const data = await response.data;
-      if (data.status !== 200) {
-        setError(data.message);
-        setLoading(false);
-        return;
-      }
-      setProducts(data.data);
-      setLoading(false);
-    } catch (error) {
-      setError(error);
-    }
-  };
 
   const deleteProduct = (id) => {
-    try {
-      MySwal.fire({
-        title: "Are you sure?",
-        text: "You won't be able to revert this!",
-        icon: "warning",
-        confirmButtonText: "Ok",
-        showconfirmButton: true,
-        showCancelButton: true,
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          const response = await api.deleteProduct(id);
-          const data = await response.data;
-          if (data.status !== 200) {
-            setError(data.message);
-            setLoading(false);
-            return;
-          }
-          setLoading(false);
-          MySwal.fire({
-            title: "Success",
-            text: "Product Deleted Successfully",
-            icon: "success",
-            confirmButtonText: "Ok",
-            showconfirmButton: true,
-            timer: 5000,
-          }).then(() => {
-            fetchProducts();
-          });
-        } else if (result.isDismissed) {
-          MySwal.fire({
-            title: "Cancelled",
-            text: "Your Product is safe :)",
-            icon: "error",
-            confirmButtonText: "Ok",
-            showconfirmButton: true,
-            timer: 5000,
-          });
-        }
-      });
-    } catch (error) {
-      setError(error);
-    }
+    MySwal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      confirmButtonText: "Ok",
+      showconfirmButton: true,
+      showCancelButton: true,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        dispatch(deleteProductAsync(id));
+        MySwal.fire({
+          title: "Deleted!",
+          text: "Your Product has been deleted.",
+          icon: "success",
+          confirmButtonText: "Ok",
+          showconfirmButton: true,
+          timer: 5000,
+        });
+      }
+    });
   };
 
   useEffect(() => {
-    fetchProducts();
+    dispatch(getProductsAsync());
   }, []);
 
   return (
@@ -125,7 +91,7 @@ const ProductList = () => {
                   <td>{product.name}</td>
                   <td>{product.price}</td>
                   <td>{product.description}</td>
-                  <td>{product.category.name}</td>
+                  <td>{product?.category?.name}</td>
                   <td>{product.creator.name}</td>
                   <td>{product.status ? "Active" : "Inactive"}</td>
                   <td>

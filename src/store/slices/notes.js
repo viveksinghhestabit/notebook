@@ -1,10 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
+import * as api from "../../Api/index";
 
 export const notesSlice = createSlice({
   name: "notes",
   initialState: {
     notes: [],
-    status: null,
+    loading: false,
     error: null,
   },
   reducers: {
@@ -27,7 +28,7 @@ export const notesSlice = createSlice({
       state.error = action.payload;
     },
     setLoading: (state, action) => {
-      state.status = action.payload;
+      state.loading = action.payload;
     },
   },
 });
@@ -42,3 +43,68 @@ export const {
 } = notesSlice.actions;
 
 export default notesSlice.reducer;
+
+export const getNotesAsync = () => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const response = await api.getNotes();
+    const data = response.data;
+    dispatch(getNotes(data.data));
+    dispatch(setLoading(false));
+  } catch (error) {
+    dispatch(setError(error.message));
+  }
+};
+
+export const addNoteAsync = (data) => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const response = await api.addNote({
+      title: data.title,
+      description: data.description,
+    });
+    const note = response.data;
+    dispatch(
+      addNote({
+        _id: note._id,
+        title: note.title,
+        description: note.description,
+      })
+    );
+    dispatch(setLoading(false));
+  } catch (error) {
+    dispatch(setError(error.message));
+  }
+};
+
+export const updateNoteAsync = (id, data) => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const response = await api.updateNote(id, {
+      title: data.title,
+      description: data.description,
+    });
+    const note = response.data;
+    dispatch(
+      updateNote({
+        _id: note._id,
+        title: note.title,
+        description: note.description,
+      })
+    );
+    dispatch(setLoading(false));
+  } catch (error) {
+    dispatch(setError(error.message));
+  }
+};
+
+export const deleteNoteAsync = (id) => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    await api.deleteNote(id);
+    dispatch(deleteNote(id));
+    dispatch(setLoading(false));
+  } catch (error) {
+    dispatch(setError(error.message));
+  }
+};

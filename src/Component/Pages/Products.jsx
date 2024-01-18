@@ -1,49 +1,23 @@
 import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import TokenContext from "../../Context/TokenContext";
+import {
+  getProductByCatIdAsync,
+  deleteProductAsync,
+} from "../../store/slices/products";
+import { useDispatch, useSelector } from "react-redux";
 
 const Products = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const dispatch = useDispatch();
+  const products = useSelector((state) => state.products.products);
+  const loading = useSelector((state) => state.products.loading);
+  const error = useSelector((state) => state.products.error);
   const { useCart } = useContext(TokenContext);
   const { addItem } = useCart();
   const { id } = useParams();
-  const base_url = process.env.REACT_APP_BASE_URL;
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      fetch(`${base_url}auth/productbyCatId/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => {
-          return response.json();
-        })
-        .then((data) => {
-          let allProducts = data.data.map((product) => {
-            return {
-              id: product._id,
-              title: product.name,
-              price: product.price,
-              description: product.description,
-              imagePath: product.imagePath,
-              category: product.category,
-            };
-          });
-          setProducts(allProducts);
-          setLoading(false);
-        });
-    } catch (error) {
-      setError(error.message);
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    fetchProducts();
+    dispatch(getProductByCatIdAsync(id));
   }, []);
 
   return (
