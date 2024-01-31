@@ -13,6 +13,7 @@ import Cart from "../Component/Pages/Cart";
 import ProductCategory from "../Component/Pages/ProductCategory";
 import Orders from "../Component/Orders";
 import OrderDetail from "../Component/OrderDetail";
+import Chat from "../Component/Pages/Chat";
 
 const FrontRoutes = () => {
   return (
@@ -23,6 +24,7 @@ const FrontRoutes = () => {
         <Route path="/about" element={<About />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/notes" element={<Notes />} />
+        <Route path="/chat" element={<Chat />} />
         <Route path="/add-note" element={<AddNote />} />
         <Route path="/edit-note/:id" element={<EditNote />} />
         <Route path="/contact" element={<Contact />} />

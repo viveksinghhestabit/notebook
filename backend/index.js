@@ -4,6 +4,7 @@ const express = require("express");
 require("dotenv").config();
 const bodyParser = require("body-parser");
 const path = require("path");
+const socket = require("./middleware/socket");
 
 const app = express();
 const port = 5000;
@@ -25,7 +26,8 @@ app.use(
 );
 app.use("/api/products", authenticateUser, require("./routes/products"));
 app.use("/api/orders", authenticateUser, require("./routes/payment"));
-
-app.listen(port, () => {
+const server = require("http").createServer(app);
+socket(server);
+server.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
 });
