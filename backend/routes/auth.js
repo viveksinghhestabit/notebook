@@ -10,7 +10,7 @@ const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const { body, validationResult } = require("express-validator");
-const { res_success, res_error, jwtSign } = require("../middleware/response");
+const { res_success, res_error, jwtSign, res_not_found } = require("../middleware/response");
 
 Router.post(
   "/register",
@@ -27,7 +27,7 @@ Router.post(
     console.log(JSON.stringify(req.body));
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res_not_found(res, errors.array());
     }
     const { name, email, password } = req.body;
     let passwordHash = await bcrypt.hash(password, 10);
@@ -40,7 +40,7 @@ Router.post(
       res_success(res, "User created successfully");
     } catch (err) {
       console.error(err.message);
-      res.status(500).send("Server error", err.message);
+      res_error(res, "Server error");
     }
   }
 );
@@ -55,7 +55,7 @@ Router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res_not_found(res, errors.array());
     }
     const { email, password } = req.body;
     try {
@@ -82,7 +82,7 @@ Router.post(
       res.json({ response });
     } catch (err) {
       console.error(err.message);
-      res.status(500).send("Server error", err.message);
+      res_error(res, "Server error");
     }
   }
 );

@@ -11,7 +11,7 @@ const res_success = (res, data) => {
 
 const res_error = (res, err) => {
   console.error(err);
-  res.status(500).send("Server error", err);
+  res.status(500).json({ msg: "Server Error" });
 };
 
 const res_not_found = (res, msg) => {
