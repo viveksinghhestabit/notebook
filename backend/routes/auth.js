@@ -82,7 +82,7 @@ Router.post(
       return res.json({ response });
     } catch (err) {
       console.error(err.message);
-      return res_error(res, "Server error");
+      return res_error(res, err);
     }
   }
 );
