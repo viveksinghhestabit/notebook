@@ -7,6 +7,7 @@ const socket = (server) => {
             const { type, message } = JSON.parse(messageAsString);
             if (type === "bind") {
                 clients.set(ws, message);
+                console.log("binded sender", message);
                 return;
             }
             const sender = clients.get(ws);
