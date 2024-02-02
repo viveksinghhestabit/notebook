@@ -150,14 +150,14 @@ const Home = () => {
         <h1 className="">Top Categories</h1>
         {categories.map((category) => {
           return (
-            <div className="col-md-4" key={category.id}>
+            <div className="col-md-4 my-2" key={category.id}>
               <div className="card">
-                <img
-                  src={category.imagePath}
-                  className="card-img-top"
-                  alt="..."
-                  style={{ height: "400px" }}
-                />
+              <img
+                className="img-fluid card-img-top shadow-sm"
+                src={category.imagePath}
+                alt={category.title}
+                style={{ height: "350px" }}
+              />
                 <div className="card-body">
                   <h5 className="card-title">{category.title}</h5>
                   <p className="card-text">{category.description}</p>
