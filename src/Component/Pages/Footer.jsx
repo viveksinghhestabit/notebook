@@ -22,7 +22,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <i class="fab fa-facebook-f"></i> Facebook
+                  <i className="fab fa-facebook-f"></i> Facebook
                 </a>
               </li>
               <li>
@@ -32,7 +32,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <i class="fab fa-instagram"></i> Instagram
+                  <i className="fab fa-instagram"></i> Instagram
                 </a>
               </li>
               <li>
@@ -42,7 +42,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <i class="fab fa-linkedin-in"></i> Linkedin
+                  <i className="fab fa-linkedin-in"></i> Linkedin
                 </a>
               </li>
             </ul>
