@@ -80,7 +80,7 @@ const SignUp = () => {
                   value={user.name}
                   onChange={handleChange}
                   className="form-control"
-                  id="exampleFormControlInput1"
+                  id="exampleFormControlInput2"
                   placeholder="Name"
                 />
               </div>
@@ -96,7 +96,7 @@ const SignUp = () => {
                   value={user.password}
                   onChange={handleChange}
                   className="form-control"
-                  id="exampleFormControlInput1"
+                  id="exampleFormControlInput3"
                   placeholder="Password"
                 />
               </div>
@@ -112,7 +112,7 @@ const SignUp = () => {
                   value={user.confirmPassword}
                   onChange={handleChange}
                   className="form-control"
-                  id="exampleFormControlInput1"
+                  id="exampleFormControlInput4"
                   placeholder="Confirm Password"
                 />
               </div>

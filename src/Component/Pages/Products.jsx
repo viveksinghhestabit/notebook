@@ -9,7 +9,11 @@ import { useDispatch, useSelector } from "react-redux";
 
 const Products = () => {
   const dispatch = useDispatch();
-  const products = useSelector((state) => state.products.products);
+  const allProduct = useSelector((state) => state.products.products);
+  const products = allProduct.map((product) => ({
+    ...product,
+    id: product._id,
+  }));
   const loading = useSelector((state) => state.products.loading);
   const error = useSelector((state) => state.products.error);
   const { useCart } = useContext(TokenContext);
@@ -33,7 +37,7 @@ const Products = () => {
           </div>
         )}
         {products.map((product) => (
-          <div className="col-md-4 my-2" key={product.id}>
+          <div className="col-md-4 my-2" key={product._id}>
             <div className="card shadow">
               <img
                 className="img-fluid card-img-top shadow-sm fit-image"
@@ -46,7 +50,7 @@ const Products = () => {
                 <p className="card-text">{product.description}</p>
                 <p className="card-text">Price: {product.price}</p>
                 <p className="card-text">Category: {product.category.name}</p>
-                <div key={product.id}>
+                <div key={product._id}>
                   <button
                     onClick={() => addItem(product)}
                     className="btn btn-primary"
