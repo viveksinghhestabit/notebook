@@ -24,7 +24,7 @@ const Chat = () => {
   }
 
   useEffect(() => {
-    const newSocket = new WebSocket("ws:localhost:5000");
+    const newSocket = new WebSocket("ws:" + process.env.SOCKET_PATH);
     setSocket(newSocket);
     return () => {
       newSocket.close();
