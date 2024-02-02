@@ -24,7 +24,7 @@ const Chat = () => {
   }
 
   useEffect(() => {
-    const newSocket = new WebSocket("ws://7cb6-14-102-126-138.ngrok-free.app");
+    const newSocket = new WebSocket("ws:localhost:5000");
     setSocket(newSocket);
     return () => {
       newSocket.close();
