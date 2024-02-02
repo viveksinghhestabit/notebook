@@ -61,11 +61,11 @@ Router.post(
     try {
       const user = await User.findOne({ email });
       if (!user) {
-        res_error(res, "Invalid credentials");
+        return res_not_found(res, "Invalid credentials");
       }
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        res_error(res, "Invalid credentials");
+        return res_not_found(res, "Invalid credentials");
       }
       const token = jwtSign(user);
       const response = {
@@ -79,10 +79,10 @@ Router.post(
           email: user.email,
         },
       };
-      res.json({ response });
+      return res.json({ response });
     } catch (err) {
       console.error(err.message);
-      res_error(res, "Server error");
+      return res_error(res, "Server error");
     }
   }
 );
